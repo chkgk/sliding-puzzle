@@ -1,0 +1,31 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    <center>
+        Results
+    </center>
+{% endblock %}
+
+{% block content %}
+
+    <p>
+    {% if player.puzzle_solved %}
+        <center>
+            Congratulations! You solved the puzzle in {{player.num_of_moves}} moves. <br>
+            Your payoff is € {{ player.payoff_display}}
+        </center>
+
+    {% else %}
+        <center>
+            Unfortunately you did not solve the puzzle in time. <br>
+            You made {{player.num_of_moves}} moves and your payoff is € {{ player.payoff_display}}.
+        </center>
+    {% endif %}
+    </p>
+
+
+
+    <center>{% next_button %}</center>
+{% endblock %}
+

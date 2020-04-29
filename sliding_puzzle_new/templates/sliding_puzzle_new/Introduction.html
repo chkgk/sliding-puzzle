@@ -1,0 +1,35 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+<center>
+    Introduction
+</center>
+
+
+{% endblock %}
+
+{% block content %}
+
+<center>
+    <div class="card bg-light m-3">
+    <div class="card-body">
+
+    <p>
+            This is a sliding puzzle game with 5 rounds. <br>
+            You have 10 euros and 5 minutes at the start of each round. <br>
+            A certain amount of money will be deducted after every 10 seconds. <br>
+            The next button will appear once the game is solved or time runs up.<br>
+
+    </p>
+    </div>
+</div>
+</center>
+
+
+<center>
+    {% next_button %}
+</center>
+
+
+{% endblock %}

@@ -1,0 +1,769 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    <center>
+        Sliding Puzzle
+    </center>
+{% endblock %}
+
+
+
+
+{% block styles %}
+    <style type="text/css">
+        table.sliding_puzzle_new {
+            width: 300px;
+            height: 300px;
+            text-align: center;
+            background-color: #000;
+            font-size: 2em;
+            border-collapse: unset;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sliding_puzzle_new td {
+            width: 100px;
+            height: 100px;
+        }
+
+        .full {
+            background-color: #ccc;
+            cursor: pointer;
+        }
+
+        .empty {
+            background-color: #fff;
+        }
+
+        .vspace {
+            margin-top: 1em;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        #message {
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .green {
+            color: forestgreen;
+        }
+
+        .orange {
+            color: orangered;
+        }
+
+    .otree-timer {
+    display: none;
+        }
+
+    </style>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+{% block content %}
+
+
+
+    <div class="center vspace2">
+
+
+        <script>
+    function payoff(timer, display,multiplier) {
+    var timer, payoff, multiplier;
+    setInterval(function () {
+
+        int = parseInt((timer-2) / 20, 10);
+
+        if (timer > 599) {
+        	payoff=(10.0).toFixed(1);
+            	}
+
+        if (2 < timer && timer < 599) {
+        	payoff=(10.0-multiplier*(600/20-1-int)).toFixed(1);
+            	}
+
+
+        if (--timer < 1) {
+            payoff=(10-multiplier*600/20).toFixed(1);
+            	}
+
+
+        display.textContent = payoff ;
+
+
+        document.getElementById("payoff").style.color = 'black';
+
+                  }
+                    , 500);
+     }
+
+	function startTimer(timer, display) {
+    var timer, minutes, seconds;
+    setInterval(function () {
+
+    	ticksToSecond = timer/2
+        minutes = parseInt(ticksToSecond / 60, 10);
+        seconds = parseInt(ticksToSecond % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+		if (timer < 12) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (timer < 12 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (12 < timer && timer < 22) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (12 < timer && timer < 22 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (22 < timer && timer < 32) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (22< timer && timer < 32 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (32 < timer && timer < 42) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (32 < timer && timer < 42 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (42 < timer && timer < 52) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (42< timer && timer < 52 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (52 < timer && timer < 62) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (52 < timer && timer < 62 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (62 < timer && timer < 72) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (62< timer && timer < 72 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (72 < timer && timer < 82) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (72 < timer && timer < 82 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (82 < timer && timer < 92) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (82< timer && timer < 92 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (92 < timer && timer < 102) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (92 < timer && timer < 102 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (102 < timer && timer < 112) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (102< timer && timer < 112 && ticksToSecond/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (112 < timer && timer < 122) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (112 < timer && timer < 122 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (122 < timer && timer < 132) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (122< timer && timer < 132 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (132 < timer && timer < 142) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (132 < timer && timer < 142 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (142 < timer && timer < 152) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (142< timer && timer < 152 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (152 < timer && timer < 162) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (152 < timer && timer < 162 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (162 < timer && timer < 172) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (162< timer && timer < 172 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (172 < timer && timer < 182) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (172 < timer && timer < 182 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (182 < timer && timer < 192) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (182< timer && timer < 192 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (192 < timer && timer < 202) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (192 < timer && timer < 202 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (202 < timer && timer < 212) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (202< timer && timer < 212 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (212 < timer && timer < 222) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (212 < timer && timer < 222 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (222 < timer && timer < 232) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (222< timer && timer < 232 && (ticksToSecond-60)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (232 < timer && timer < 242) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (232 < timer && timer < 242 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (242 < timer && timer < 252) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (242< timer && timer < 252 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (252 < timer && timer < 262) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (252 < timer && timer < 262 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (262 < timer && timer < 272) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (262< timer && timer < 272 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (272 < timer && timer < 282) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (272 < timer && timer < 282 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (282 < timer && timer < 292) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (282< timer && timer < 292 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (292 < timer && timer < 302) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (292 < timer && timer < 302 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (302 < timer && timer < 312) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (302< timer && timer < 312 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (312 < timer && timer < 322) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (312 < timer && timer < 322 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (322 < timer && timer < 332) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (322< timer && timer < 332 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (332 < timer && timer < 342) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (332 < timer && timer < 342 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (342 < timer && timer < 352) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (342< timer && timer < 352 && (ticksToSecond-120)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (352 < timer && timer < 362) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (352 < timer && timer < 362 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (362 < timer && timer < 372) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (362< timer && timer < 372 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (372 < timer && timer < 382) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (372 < timer && timer < 382 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (382 < timer && timer < 392) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (382< timer && timer < 392 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (392 < timer && timer < 402) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (392 < timer && timer < 402 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (402 < timer && timer < 412) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (402< timer && timer < 412 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (412 < timer && timer < 422) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (412 < timer && timer < 422 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (422 < timer && timer < 432) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (422< timer && timer < 432 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (432 < timer && timer < 442) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (432 < timer && timer < 442 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (442 < timer && timer < 452) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (442< timer && timer < 452 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (452 < timer && timer < 462) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (452 < timer && timer < 462 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (462 < timer && timer < 472) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (462< timer && timer < 472 && (ticksToSecond-180)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (472 < timer && timer < 482) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (472 < timer && timer < 482 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (482 < timer && timer < 492) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (482< timer && timer < 492 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (492 < timer && timer < 502) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (492 < timer && timer < 502 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (502 < timer && timer < 512) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (502< timer && timer < 512 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (512 < timer && timer < 522) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (512 < timer && timer < 522 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (522 < timer && timer < 532) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (522< timer && timer < 532 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (532 < timer && timer < 542) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (532 < timer && timer < 542 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (542 < timer && timer < 552) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (542< timer && timer < 552 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (552 < timer && timer < 562) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (552 < timer && timer < 562 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (562 < timer && timer < 572) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (562< timer && timer < 572 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+        if (572 < timer && timer < 582) {
+            document.getElementById("time").style.color = 'black';
+                }
+		if (572 < timer && timer < 582 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'black';
+                }
+        if (582 < timer && timer < 592) {
+            document.getElementById("time").style.color = 'white';
+                }
+		if (582< timer && timer < 592 && (ticksToSecond-240)/seconds >1) {
+            document.getElementById("time").style.color = 'red';
+                }
+
+        if (--timer < 0) {
+            timer = 0;
+            document.getElementById("time").style.color = 'red';
+                }
+                    }
+                    , 500);
+                        }
+
+
+    window.onload = function () {
+        var timer = 600,
+            display = document.querySelector('#time');
+        startTimer(timer, display);
+        var multiplier = 0.2,
+    	    display = document.querySelector('#payoff');
+        payoff(timer, display, multiplier);
+        };
+
+    </script>
+
+
+    <center>
+        <div><p>Time Left: <span id="time">05:00</span></p></div>
+        <div><p>Your Payoff is: &euro; <span id="payoff"> 10.0</span></p></div>
+    </center>
+
+
+        <table class="sliding_puzzle_new" id="game_table"></table>
+
+
+
+        <p id="message"></p>
+
+
+        <input type="hidden" name="puzzle_solved" id="id_puzzle_solved" value="False">
+        <!--<input type="hidden" name="move_history"  id="id_move_history">-->
+
+
+        {% next_button %}
+
+    </div>
+
+
+
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+    <script type="text/javascript">
+
+        class SlidePuzzle {
+            constructor(table_id, board) {
+                this.table = document.getElementById(table_id);
+                this.board = board;
+                this.enabled = true;
+                this.draw();
+            }
+
+
+            get_empty_field() {
+                for (let row = 0; row < this.board.length; row++) {
+                    for (let col = 0; col < this.board[row].length; col++) {
+                        if (this.board[row][col] === null) {
+                            return [row, col];
+                        }
+                    }
+                }
+            }
+
+
+
+            get_movable_blocks() {
+                let pos_empty_field = this.get_empty_field();
+                let empty_row = pos_empty_field[0];
+                let empty_col = pos_empty_field[1];
+
+                // row and col candidates
+                let candidate_rows = [empty_row - 1, empty_row + 1];
+                let candidate_cols = [empty_col - 1, empty_col + 1];
+
+                let rows = [];
+                let cols = [];
+
+                // remove candidates outside of board
+                for (let c_row = 0; c_row < candidate_rows.length; c_row++) {
+                    if (candidate_rows[c_row] >= 0 && candidate_rows[c_row] < this.board.length) {
+                        rows.push(candidate_rows[c_row]);
+                    }
+                }
+
+                for (let c_col = 0; c_col < candidate_cols.length; c_col++) {
+                    if (candidate_cols[c_col] >= 0 && candidate_cols[c_col] < this.board[0].length) {
+                        cols.push(candidate_cols[c_col]);
+                    }
+                }
+
+                // combine candidates with empty columns
+                let block_pos = [];
+                for (let i = 0; i < rows.length; i++) {
+                    block_pos.push([rows[i], empty_col]);
+                }
+
+                for (let j = 0; j < cols.length; j++) {
+                    block_pos.push([empty_row, cols[j]]);
+                }
+
+                return block_pos;
+            }
+
+
+
+            searchForArray(sea, needle){
+                var i, j, current;
+                for(i = 0; i < sea.length; ++i){
+                    if(needle.length === sea[i].length){
+                        current = sea[i];
+                        for(j = 0; j < needle.length && needle[j] === current[j]; ++j);
+                            if(j === needle.length)
+                                return i;
+                        }
+                    }
+                return -1;
+            }
+
+
+
+            move(pos, external=false) {
+                if (!this.enabled) {
+                    return false;
+                }
+                if (this.searchForArray(this.get_movable_blocks(this.board), pos) === -1) {
+                    return false;
+                }
+                let empty = this.get_empty_field(this.board);
+                this.board[empty[0]][empty[1]] = this.board[pos[0]][pos[1]];
+                this.board[pos[0]][pos[1]] = null;
+                this.draw();
+                if (!external) {
+                    let move_event = new CustomEvent('move', { detail: { from: pos, to: empty } });
+                    this.table.dispatchEvent(move_event);
+                }
+
+                if (this.solved()) {
+                    this.enabled = false;
+                }
+                return true;
+            }
+
+
+
+            clear() {
+                const l = this.table.rows.length;
+                for (let r = 0; r < l; r++) {
+                    this.table.deleteRow(-1);
+                }
+            }
+
+
+
+            draw() {
+                this.clear();
+                for (let r = 0; r < this.board.length; r++) {
+                    let row = this.table.insertRow(-1);
+                    for (let c = 0; c < this.board[0].length; c++) {
+                        let cell = row.insertCell(-1);
+                        let value;
+                        if (this.board[r][c] == null) {
+                            value = "";
+                            cell.classList.add('empty');
+                        } else {
+                            value = this.board[r][c];
+                            cell.classList.add('full');
+                        }
+                        cell.setAttribute('onclick', "sg.move(["+r+","+c+"])");
+                        cell.innerHTML = value;
+                    }
+                }
+            }
+
+
+
+            solved() {
+
+                if (this.board[2][2] != null) {
+                    return false
+                }
+
+                if (this.board[0][0] != 1) {
+                    return false
+                }
+
+                if (this.board[0][1] != 2) {
+                    return false
+                }
+
+                if (this.board[0][2] != 3) {
+                    return false
+                }
+
+                if (this.board[1][0] != 4) {
+                    return false
+                }
+
+                if (this.board[1][1] != 5) {
+                    return false
+                }
+
+                if (this.board[1][2] != 6) {
+                    return false
+                }
+
+                if (this.board[2][0] != 7) {
+                    return false
+                }
+
+                if (this.board[2][1] != 8) {
+                    return false
+                }
+
+                let solved_event = new Event('solved');
+                this.table.dispatchEvent(solved_event);
+                return true;
+            }
+        }
+
+
+// class SlidePuzzle ends here
+
+
+
+
+
+
+
+
+        // Websockets
+        let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+        let ws = new WebSocket(ws_scheme + '://' + window.location.host + "/sliding_puzzle_new/" + js_vars.game_id + "/");
+
+        // Handle any errors that occur.
+        ws.onerror = function (error) {
+            console.log('WebSocket Error: ' + error);
+        };
+
+        // Show a connected message when the WebSocket is opened.
+        ws.onopen = function (event) {
+            console.log('connected to puzzle socket');
+        };
+
+
+
+        // Show a disconnected message when the WebSocket is closed.
+        ws.onclose = function (event) {
+            console.log('disconnected from puzzle socket');
+        };
+
+        function green_message(msg) {
+            let m = $('#message');
+            m.removeClass('orange');
+            m.addClass('green');
+            m.text(msg);
+        }
+
+        // Game
+        let board = js_vars.board;
+        let sg = new SlidePuzzle('game_table', board);
+        let fill_form = js_vars.player_id;
+        //let history = [];
+
+        //sg.table.addEventListener('move', function (e) {
+        //    send(e.type, e.detail);
+        //    history.push(e.detail);
+        //    $('#id_move_history').val(JSON.stringify(history));
+        //}, false);
+
+        sg.table.addEventListener('solved', function () {
+            if (fill_form) {
+                $('#id_puzzle_solved').val('True');
+            }
+            $('.otree-btn-next').show();
+            green_message("Puzzle solved!");
+        }, false);
+
+        $('.otree-btn-next').hide();
+    </script>
+{% endblock %}

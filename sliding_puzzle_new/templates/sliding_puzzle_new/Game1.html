@@ -1,0 +1,402 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    <center>
+        Sliding Puzzle
+    </center>
+{% endblock %}
+
+
+{% block styles %}
+    <style type="text/css">
+        table.sliding_puzzle_new {
+            width: 300px;
+            height: 300px;
+            text-align: center;
+            background-color: #000;
+            font-size: 2em;
+            border-collapse: unset;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sliding_puzzle_new td {
+            width: 100px;
+            height: 100px;
+        }
+
+        .full {
+            background-color: #ccc;
+            cursor: pointer;
+        }
+
+        .empty {
+            background-color: #fff;
+        }
+
+        .vspace {
+            margin-top: 1em;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        #message {
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .green {
+            color: forestgreen;
+        }
+
+        .orange {
+            color: orangered;
+        }
+
+        .otree-timer {
+            display: none;
+        }
+    </style>
+
+
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="center vspace2">
+
+        <script>
+
+            function startTimer(timer, display) {
+                var timer, minutes, seconds;
+                setInterval(function () {
+
+                    ticksToSecond = timer/2
+                    minutes = parseInt(ticksToSecond / 60, 10);
+                    seconds = parseInt(ticksToSecond % 60, 10);
+
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                    display.textContent = minutes + ":" + seconds;
+
+                    if (timer < 12) {
+                        document.getElementById("time").style.color = 'white';
+                    }
+                    if (timer < 12 && ticksToSecond/seconds >1) {
+                        document.getElementById("time").style.color = 'red';
+                    }
+                    if (12 < timer && timer < 22) {
+                        document.getElementById("time").style.color = 'black';
+                    }
+                    if (12 < timer && timer < 22 && ticksToSecond/seconds >1) {
+                        document.getElementById("time").style.color = 'black';
+                    }
+                    if (--timer < 0) {
+                        timer = 0;
+                        document.getElementById("time").style.color = 'red';
+                    }
+                }, 500);
+            }
+
+
+            window.onload = function () {
+                var timer = 600,
+                    display = document.querySelector('#time');
+                startTimer(timer, display);
+            };
+        </script>
+
+
+        <center>
+            <div><p>Time Left: <span id="time">05:00</span></p></div>
+            <div><p>Moves made: <span id="num_of_moves"> 0</span></p></div>
+            <div><p>Your Payoff: &euro; <span id="payoff_display"> 10.0 </span></p></div>
+        </center>
+
+
+        <table class="sliding_puzzle_new" id="game_table"></table>
+
+
+        <p id="message"></p>
+
+
+        <input type="hidden" name="puzzle_solved" id="id_puzzle_solved" value="False">
+        <input type="hidden" name="move_history"  id="id_move_history">
+        <input type="hidden" name="payoff_display"  id="id_payoff_display">
+        <input type="hidden" name="num_of_moves"  id="id_num_of_moves">
+        <input type="hidden" name="board_history"  id="id_board_history">
+
+        {% next_button %}
+
+    </div>
+
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+    <script type="text/javascript">
+
+        class SlidePuzzle {
+            constructor(table_id, board) {
+                this.table = document.getElementById(table_id);
+                this.board = board;
+                this.enabled = true;
+                this.draw();
+            }
+
+
+            get_empty_field() {
+                for (let row = 0; row < 3; row++) {
+                    for (let col = 0; col < 3; col++) {
+                        if (this.board[row][col] === null) {
+                            return [row, col];
+                        }
+                    }
+                }
+            }
+
+
+
+            get_movable_blocks() {
+                let pos_empty_field = this.get_empty_field();
+                let empty_row = pos_empty_field[0];
+                let empty_col = pos_empty_field[1];
+
+                // row and col candidates
+                let candidate_rows = [empty_row - 1, empty_row + 1];
+                let candidate_cols = [empty_col - 1, empty_col + 1];
+
+                let rows = [];
+                let cols = [];
+
+                // remove candidates outside of board
+                for (let c_row = 0; c_row < candidate_rows.length; c_row++) {
+                    if (candidate_rows[c_row] >= 0 && candidate_rows[c_row] < 3) {
+                        rows.push(candidate_rows[c_row]);
+                    }
+                }
+
+                for (let c_col = 0; c_col < candidate_cols.length; c_col++) {
+                    if (candidate_cols[c_col] >= 0 && candidate_cols[c_col] < 3) {
+                        cols.push(candidate_cols[c_col]);
+                    }
+                }
+
+                // combine candidates with empty columns
+                let block_pos = [];
+                for (let i = 0; i < rows.length; i++) {
+                    block_pos.push([rows[i], empty_col]);
+                }
+
+                for (let j = 0; j < cols.length; j++) {
+                    block_pos.push([empty_row, cols[j]]);
+                }
+
+                return block_pos;
+            }
+
+
+
+            searchForArray(sea, needle){
+                var i, j, current;
+                for(i = 0; i < sea.length; ++i){
+                    if(needle.length === sea[i].length){
+                        current = sea[i];
+                        for(j = 0; j < needle.length && needle[j] === current[j]; ++j);
+                            if(j === needle.length)
+                                return i;
+                        }
+                    }
+                return -1;
+            }
+
+
+
+            move(pos, external=false) {
+                if (!this.enabled) {
+                    return false;
+                }
+                if (this.searchForArray(this.get_movable_blocks(this.board), pos) === -1) {
+                    return false;
+                }
+                let empty = this.get_empty_field(this.board);
+                this.board[empty[0]][empty[1]] = this.board[pos[0]][pos[1]];
+                this.board[pos[0]][pos[1]] = null;
+                this.draw();
+                if (!external) {
+                    let move_event = new CustomEvent('move', { detail: { from: pos, to: empty } });
+                    this.table.dispatchEvent(move_event);
+                }
+
+                if (this.solved()) {
+                    this.enabled = false;
+                }
+                return true;
+            }
+
+
+
+            clear() {
+                const l = this.table.rows.length;
+                for (let r = 0; r < l; r++) {
+                    this.table.deleteRow(-1);
+                }
+            }
+
+
+
+            draw() {
+                this.clear();
+                for (let r = 0; r < 3; r++) {
+                    let row = this.table.insertRow(-1);
+                    for (let c = 0; c < 3; c++) {
+                        let cell = row.insertCell(-1);
+                        let value;
+                        if (this.board[r][c] == null) {
+                            value = "";
+                            cell.classList.add('empty');
+                        } else {
+                            value = this.board[r][c];
+                            cell.classList.add('full');
+                        }
+                        cell.setAttribute('onclick', "sg.move(["+r+","+c+"])");
+                        cell.innerHTML = value;
+                    }
+                }
+            }
+
+
+
+            solved() {
+
+                if (this.board[2][2] != null) {
+                    return false
+                }
+
+                if (this.board[0][0] != 1) {
+                    return false
+                }
+
+                if (this.board[0][1] != 2) {
+                    return false
+                }
+
+                if (this.board[0][2] != 3) {
+                    return false
+                }
+
+                if (this.board[1][0] != 4) {
+                    return false
+                }
+
+                if (this.board[1][1] != 5) {
+                    return false
+                }
+
+                if (this.board[1][2] != 6) {
+                    return false
+                }
+
+                if (this.board[2][0] != 7) {
+                    return false
+                }
+
+                if (this.board[2][1] != 8) {
+                    return false
+                }
+
+                let solved_event = new Event('solved');
+                this.table.dispatchEvent(solved_event);
+                return true;
+            }
+        }
+
+        // class SlidePuzzle ends here
+
+
+
+
+        // Websockets
+        let ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+        let ws = new WebSocket(ws_scheme + '://' + window.location.host + "/sliding_puzzle_new/" + js_vars.game_id + "/");
+
+        // Handle any errors that occur.
+        ws.onerror = function (error) {
+            console.log('WebSocket Error: ' + error);
+        };
+
+        // Show a connected message when the WebSocket is opened.
+        ws.onopen = function (event) {
+            console.log('connected to puzzle socket');
+        };
+
+        // Show a disconnected message when the WebSocket is closed.
+        ws.onclose = function (event) {
+            console.log('disconnected from puzzle socket');
+        };
+
+
+        function send(type, message) {
+            let msg = {
+                type: type,
+                text: message,
+                player: js_vars.player_id
+            };
+            ws.send(JSON.stringify(msg));
+            sg.enabled = false;
+        }
+
+
+        function green_message(msg) {
+            let m = $('#message');
+            m.removeClass('orange');
+            m.addClass('green');
+            m.text(msg);
+        }
+
+        // Game
+        let payoff = 1000;
+        let board = js_vars.board;
+        let sg = new SlidePuzzle('game_table', board);
+        let player = js_vars.player_id;
+        let history = [];
+        let the_board_history = [];
+
+
+        sg.table.addEventListener('move', function (e) {
+            send(e.type, e.detail);
+            history.push(e.detail);
+            $('#id_move_history').val(JSON.stringify(history));
+            payoff -= 20;
+            $('#id_payoff_display').text((payoff/100).toFixed(2));
+        }, false);
+
+
+        sg.table.addEventListener('draw', function (f) {
+            send(f.type, f.detail);
+            the_board_history.push(f.detail);
+            $('#id_board_history').val(JSON.stringify(the_board_history));
+        }, false);
+
+
+        sg.table.addEventListener('solved', function () {
+            if (player) {
+                $('#id_puzzle_solved').val('True');
+            }
+            $('.otree-btn-next').show();
+            green_message("Puzzle solved!");
+        }, false);
+
+
+        // Unhide this so participants can choose to skip if they don't want to continue
+        $('.otree-btn-next').hide();
+    </script>
+{% endblock %}
